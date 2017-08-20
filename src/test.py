@@ -36,5 +36,5 @@ qeval = QueryEvaluator(IndexFactory, TermStoreFactory)
 
 query = "extracting domain"
 docs = qeval.evaluate_phrase(query)
-print("INTERSECT RESULT")
+print("PHRASE QUERY RESULT")
 print(docs)

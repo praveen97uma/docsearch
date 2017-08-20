@@ -15,7 +15,7 @@ class QueryEvaluator:
         terms = self.get_terms(query_text)
         index = self.get_default_index()
 
-        return index.get_intersection(terms)
+        return index.evaluate_phrase_query(terms)
 
     def get_terms(self, query_text):
         query_terms = TextParser.parse(query_text)

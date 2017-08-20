@@ -73,24 +73,44 @@ class StandardIndex:
 
     def get_docs(self, term_id):
         postings = self.get_postings(term_id)
-        docs = [posting.doc_id for posting in postings]
+        docs = set([posting.doc_id for posting in postings])
         return docs
 
     def _apply_operator(self, term_ids, operator):
-        docs = self.get_postings(term_ids[0])
+        docs = self.get_docs(term_ids[0])
         for i in range(1, len(term_ids)):
             term_id = term_ids[i]
-            docs = operator(docs, self.get_postings(term_id))
+            docs = operator(docs, self.get_docs(term_id))
         return docs
 
-    def get_intersection(self, term_ids):
+    def get_common_docs_for_terms(self, term_ids):
         return self._apply_operator(term_ids, operator.and_)
 
-    def get_union(self, term_ids):
+    def get_all_docs_containing_terms(self, term_ids):
         return self._apply_operator(term_ids, operator.or_)
 
+    def get_posting(self, term_id, doc_id):
+        postings = self.get_postings(term_id)
+        for posting in postings:
+            if posting.doc_id == doc_id:
+                return posting
+
     def evaluate_phrase_query(self, term_ids):
-        common_docs = self.get_intersection(term_ids)
-        
+        common_docs = self.get_common_docs_for_terms(term_ids)
 
+        matched_docs = []
+        for doc_id in common_docs:
+            term_positions = []
+            for term_id in term_ids:
+                term_positions.append(self.get_posting(term_id,
+                    doc_id).pos_offsets)
+            it = set(term_positions[0])
+            for i in range(1, len(term_positions)):
+                pos = term_positions[i]
+                curr = set([p - i for p in pos])
+                it = it & curr
 
+            if it:
+                matched_docs.append(doc_id)
+
+        return matched_docs
