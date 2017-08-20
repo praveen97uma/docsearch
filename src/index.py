@@ -113,4 +113,11 @@ class StandardIndex:
             if it:
                 matched_docs.append(doc_id)
 
+        print("PHRASE QUERY RESULT ", term_ids, matched_docs)
+
+        return matched_docs
+
+    def evaluate_owq(self, term_id):
+        matched_docs = self.get_docs(term_id)
+        print("OWQ RESULT", term_id, matched_docs)
         return matched_docs
